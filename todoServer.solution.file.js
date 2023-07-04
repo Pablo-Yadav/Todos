@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const path = require("path");
 const fs = require("fs");
 
 const app = express();
@@ -84,7 +85,7 @@ app.delete('/todos/:id', (req, res) => {
 
   fs.readFile("todos.json", "utf8", (err, data) => {
     if (err) throw err;
-    const todos = JSON.parse(data);
+    let todos = JSON.parse(data);
     const todoIndex = findIndex(todos, parseInt(req.params.id));
     if (todoIndex === -1) {
       res.status(404).send();
@@ -99,8 +100,12 @@ app.delete('/todos/:id', (req, res) => {
 });
 
 // for all other routes, return 404
-app.use((req, res, next) => {
-  res.status(404).send();
+// app.use((req, res, next) => {
+//   res.status(404).send();
+// });
+
+app.get("/",(req,res)=>{
+  res.sendFile(path.join(__dirname,"index.html"));
 });
 
-app.listen(3001)
+app.listen(3002);
