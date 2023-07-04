@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Todos App</title>
+        <!-- <link rel="stylesheet" href="index.css"/>   -->
+        <style>
+            .get-btn{
+                /* margin-top: 1vh; */
+                color: #0065ff;
+                /* background-color: transparent; */
+                border: 1px solid #0065ff;
+                border-radius: 0.3rem;
+                min-height: 6vh;
+                min-width: 5vw;
+            }
+            .submit-btn{
+                /* margin-top: 1vh; */
+                color: #0065ff;
+                /* background-color: transparent; */
+                border: 1px solid #0065ff;
+                border-radius: 0.3rem;
+                min-height: 6vh;
+                min-width: 5vw;
+            }
+            input{
+                margin-bottom: 1vh;
+            }
+        </style>
+        <script>
+            
+            function getTodo(){
+                let allTodos = document.getElementById("all-todos");
+                // let title = document.getElementById("title-todo");
+                // let description = document.getElementById("desc-todo");
+                fetch('http://localhost:3002/todos', {
+                    method: 'get',
+                    headers: {
+                    "Content-type": "application/json"
+                    },
+                    // body: JSON.stringify(request)
+                    })
+                    .then(res=>res.json())
+                    .then(function (data) {
+                        let receivedData=JSON.stringify(data)
+                        console.log('Request succeeded with JSON response', data);
+                        allTodos.innerHTML="";
+                        for(let val of data){
+                            let Todo = document.createElement("div");
+                            allTodos.appendChild(Todo);
+
+                            let span1 = document.createElement("span");
+                            Todo.appendChild(span1);
+                            span1.textContent=val.title;
+                            span1.style.marginRight="1vw";
+
+                            let span2 = document.createElement("span");
+                            Todo.appendChild(span2);
+                            span2.textContent=val.description;
+                            span2.style.marginRight="1vw";
+
+                            let deleteButton = document.createElement("button");
+                            Todo.appendChild(deleteButton);
+                            deleteButton.innerHTML="Delete";
+                            deleteButton.addEventListener("click", ()=>deleteTodo(val.id));
+                        }    
+                    })
+                    .catch(function (error) {
+                    console.log('Request failed', error);
+                });
+            }
+            function sendTodo(){
+                let title=document.getElementById("title").value;
+                let description=document.getElementById("description").value;
+                let request = {title,description};
+                fetch('http://localhost:3002/todos', {
+                    method: 'post',
+                    headers: {
+                    "Content-type": "application/json"
+                    },
+                    body: JSON.stringify(request)
+                    })
+                    .then(res=>res.json())
+                    .then(function (data) {
+                        getTodo();
+                    console.log('Request succeeded with JSON response', data);
+                    })
+                    .catch(function (error) {
+                    console.log('Request failed', error);
+                });
+            }
+            function deleteTodo(id) {
+                fetch(`http://localhost:3002/todos/${id}`, {
+                    method: 'delete',
+                    headers: {
+                    "Content-type": "application/json"
+                    },
+                    // body: JSON.stringify(request)
+                    })
+                    .then(function (data) {
+                        getTodo();
+                    console.log('Deleted: ', data);
+                    })
+                    .catch(function (error) {
+                    console.log('Request failed', error);
+                });
+            }
+        </script>
+    </head>
+    <body>
+            <label for="title">Title: </label>
+            <input id="title" name="title" placeholder="Enter Title"/><br>
+            <label for="description">Description: </label>
+            <input id="description" name="description" placeholder="Enter Description"/><br>
+            <button class="submit-btn" onclick="sendTodo()">Send Data</button>
+
+            <button class="get-btn" onclick="getTodo()">Get Data</button>
+            <div id="all-todos">
+                <!-- <span id="title-todo"></span>
+                <span id="desc-todo"></span>
+                <button>Delete</button> -->
+            </div>
+    </body>
+</html>
