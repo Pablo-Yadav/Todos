@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        button{
+            background-color: rgb(0, 149, 255);
+            color:white;
+            padding:10px;
+            border:1px solid grey;
+            border-radius:20%;
+            cursor:pointer;
+        }
+        input{
+            margin-bottom:10px;
+        }
+    </style>
+    <script>
+        
+        function sendTodos(){
+            let title=document.getElementById("title").value;
+        let description=document.getElementById("description").value;
+        const data={
+            title:title,
+            description:description
+        }
+        fetch('http://localhost:3004/todos/', {
+            method: 'post',
+            headers: {
+            "Content-type": "application/json; charset=UTF-8"
+            },
+            body: JSON.stringify(data)
+            })
+            .then((res)=>res.json())
+            .then(function (data) {
+            console.log('Request succeeded with JSON response', JSON.stringify(data));
+            })
+            .catch(function (error) {
+            console.log('Request failed', error);
+            });
+        }
+
+        function getTodos(){
+          let div=document.getElementById("GetTodosDiv");
+          fetch('http://localhost:3004/todos/',{
+            method:'get'
+          })
+          .then((res)=>res.json())
+          .then(function(data){
+            div.innerHTML="";
+            for(let i=0;i<data.length;i++){
+              let newElement=document.createElement("div");
+              let newspan1=document.createElement("span");
+              let newspan2=document.createElement("span");
+              let newbutton=document.createElement("button");
+              let DeleteTextNode = document.createTextNode("Delete");
+              const span1Text= document.createTextNode(`${data[i].title}   `);
+              const span2Text=document.createTextNode(`${data[i].description}   `);
+              newspan1.appendChild(span1Text);
+              newspan2.appendChild(span2Text);
+              newbutton.appendChild(DeleteTextNode);
+              newElement.appendChild(newspan1);
+              newElement.appendChild(newspan2);
+              newElement.appendChild(newbutton);
+              div.appendChild(newElement);
+              
+              //delete functionality
+              newbutton.setAttribute("onclick",`deleteTodos(${data[i].id})`);
+              newElement.setAttribute("id",`${data[i].id}`);
+
+            }
+            // div.innerText=JSON.stringify(data);
+          }).catch(function(err){
+            console.log(err);
+          })
+        }
+
+        function deleteTodos(id){
+         console.log("Deleted!");
+         let divElement=document.getElementById(`${id}`);
+         fetch(`http://localhost:3004/todos/${id}`,{
+            method:'delete'
+         })
+         .then((data)=>{
+       divElement.setAttribute("style","display: none;");
+       console.log(data);
+         })
+        }
+    </script>
+</head>
+<body>
+    
+        <label for="title">Title:</label>
+        <input type="text" name="title" id="title" placeholder="Enter Your Title"><br>
+        <label for="description">Description:</label>
+        <input type="text" name="description" id="description" placeholder="Enter Your Description"><br>
+        
+        <button type="submit" name="submit-button" onclick="sendTodos()">Submit</button>
+        <button type="submit" name="get-button" onclick="getTodos()">Get Todos</button>
+        <div id="GetTodosDiv"></div>
+    
+    
+
+</body>
+</html>
