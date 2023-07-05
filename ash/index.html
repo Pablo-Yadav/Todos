@@ -1,0 +1,118 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        function sendTodo() 
+        {
+            let title = document.getElementById("title").value;
+            let description = document.getElementById("description").value;
+
+            //POST
+            fetch("http://localhost:3001/todos", {
+            method: 'post',
+            headers: {
+                "Content-type": "application/json"
+            },
+            body: JSON.stringify ({
+                title: title,
+                description: description,
+            })
+            })
+            .then((res) => res.json())
+            .then(function (data) {
+                getTodo();
+                console.log('Request succeeded with JSON response', data);
+            })
+            .catch(function (error) {
+                console.log('Request failed', error);
+            });
+        }
+        function getTodo()
+        {
+            let title = document.getElementById("title").value;
+            let description = document.getElementById("description").value;
+
+            //GET
+            fetch("http://localhost:3001/todos", {
+            method: 'get',
+            })
+            .then((res) => res.json())
+            .then(function (data) {
+                document.getElementById("content").innerHTML = "";
+                for(let i=0;i<data.length;i++)
+                {
+                    const box = document.createElement("div");
+                    box.className = "displayTodo";
+                    document.getElementById("content").appendChild(box);
+
+                    const box1 = document.createElement("span");
+                    box1.className = "displayTodo1";
+                    box1.innerText = data[i].id;
+                    box.appendChild(box1);
+
+                    const box2 = document.createElement("span");
+                    box2.className = "displayTodo2";
+                    box2.innerText = data[i].title;
+                    box.appendChild(box2);
+
+                    const box3 = document.createElement("span");
+                    box3.className = "displayTodo3";
+                    box3.innerText = data[i].description;
+                    box.appendChild(box3);
+
+                    const box4 = document.createElement("button");
+                    box4.className = "delete";
+                    box4.type = "delete";
+                    box4.innerText = "DELETE";
+                    box4.setAttribute("onclick",`deleteTodo(${data[i].id})`);
+                    // box4.onclick = deleteTodo(data[i].id);
+                    box.appendChild(box4);
+                }
+                console.log('Request succeeded with JSON response', JSON.stringify(data));
+            })
+            .catch(function (error) {
+                console.log('Request failed', error);
+            });
+        }
+        function deleteTodo(id)
+        {
+            console.log("deleted bro");
+            //DELETE
+            fetch(`http://localhost:3001/todos/${id}`, {
+            method: 'delete',
+            })
+            .then(function (data) {
+                getTodo();
+                console.log(data);
+            })
+        }
+    </script>
+    <style>
+        .displayTodo {
+            padding: 5px;
+        }
+        .displayTodo1 {
+            padding-right: 5px;
+        }
+        .displayTodo2 {
+            padding-right: 5px;
+        }
+        .displayTodo3 {
+            padding-right: 5px;
+        }
+        .delete {
+            background-color: blue;
+        }
+    </style>
+</head>
+<body>
+    <input type="text" id="title" name="title" placeholder="Todo Title">
+    <input type="text" id="description" name="description" placeholder="Description">
+
+    <button type="submit" onclick="sendTodo()">Create Todo</button>
+    <button type="button" onclick="getTodo()">GET LIST</button>
+    <div id="content"></div>
+</body>
+</html>
